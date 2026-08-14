@@ -23,6 +23,8 @@ interface CriarPedidoPayload {
   valorDesconto: number;
   cupomId?: string;
   observacoes?: string;
+  clienteEmail?: string;
+  clienteNome?: string;
 }
 
 export async function GET(req: NextRequest) {
@@ -105,11 +107,12 @@ export async function POST(req: NextRequest) {
     // Criar pedido + itens + pagamento em transação
     const codigoRastreio = `FD-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Status inicial: AGUARDANDO_PAGAMENTO (será atualizado pelo gateway)
     const pedido = await db.pedido.create({
       data: {
         clienteId: body.clienteId,
         restauranteId: body.restauranteId,
-        status: "PAGO", // assume pagamento aprovado para simplificação
+        status: "AGUARDANDO_PAGAMENTO",
         valorTotal: body.valorTotal,
         valorFrete: body.valorFrete,
         valorDesconto: body.valorDesconto,
@@ -132,8 +135,8 @@ export async function POST(req: NextRequest) {
           create: {
             valor: body.valorTotal,
             metodo: body.formaPagamento,
-            status: "APROVADO",
-            transacaoId: `${body.formaPagamento}-${Date.now()}`,
+            status: "PENDENTE",
+            transacaoId: `pending_${Date.now()}`,
             parcelas: 1,
           },
         },
@@ -153,7 +156,44 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ pedido }, { status: 201 });
+    // ─── Processar pagamento via gateway real ───────────────────
+    // Se nenhum gateway estiver configurado, simula aprovação (modo demo).
+    let pagamentoResult;
+    try {
+      const { processarPagamento } = await import("@/lib/pagamentos");
+      pagamentoResult = await processarPagamento({
+        pedidoId: pedido.id,
+        valor: body.valorTotal,
+        metodo: body.formaPagamento,
+        clienteEmail: body.clienteEmail,
+        clienteNome: body.clienteNome,
+      });
+
+      // Atualiza pagamento com dados do gateway
+      await db.pagamento.update({
+        where: { pedidoId: pedido.id },
+        data: {
+          transacaoId: pagamentoResult.transacaoId,
+          status: pagamentoResult.status,
+        },
+      });
+
+      // Se aprovado automaticamente (modo demo), avança status do pedido
+      if (pagamentoResult.status === "APROVADO") {
+        await db.pedido.update({
+          where: { id: pedido.id },
+          data: { status: "PAGO" },
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao processar pagamento (continuando com pedido):", err);
+      // Pedido foi criado — cliente pode tentar pagar novamente
+    }
+
+    return NextResponse.json({
+      pedido,
+      pagamento: pagamentoResult,
+    }, { status: 201 });
   } catch (error) {
     console.error("Erro ao criar pedido:", error);
     return NextResponse.json(
