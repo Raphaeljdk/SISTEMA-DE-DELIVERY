@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 1500px 1100px; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #ffffff; font-family: 'Inter', sans-serif; color: #161514; }
+  .canvas { width: 1500px; height: 1100px; position: relative; background: #ffffff; padding: 25px; box-sizing: border-box; }
+  .title { text-align: center; font-size: 22px; font-weight: 700; color: #59523f; margin-bottom: 6px; letter-spacing: 0.5px; }
+  .subtitle { text-align: center; font-size: 12px; color: #8e8c85; margin-bottom: 15px; }
+  .diagram { position: relative; width: 1450px; height: 1010px; margin: 0 auto; }
+  svg.connectors { position: absolute; left: 0; top: 0; width: 1450px; height: 1010px; pointer-events: none; }
+
+  .class-box { position: absolute; border: 2px solid #59523f; background: #ffffff; min-width: 220px; box-shadow: 2px 2px 0 rgba(0,0,0,0.05); }
+  .class-name { background: #59523f; color: #ffffff; text-align: center; font-weight: 700; font-size: 13px; padding: 5px 8px; letter-spacing: 0.5px; }
+  .class-abstract .class-name { background: #7c704c; font-style: italic; }
+  .class-section { padding: 5px 8px; font-size: 10px; line-height: 1.5; font-family: 'Inter', sans-serif; }
+  .class-section.attrs { border-top: 1px solid #c3bfb4; border-bottom: 1px solid #c3bfb4; min-height: 30px; background: #fdfcf9; }
+  .class-section.methods { background: #fdfcf9; min-height: 20px; }
+  .class-section .row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vis-private { color: #a9564f; }
+  .vis-protected { color: #a78c55; }
+  .vis-public { color: #3c7850; }
+  .type-name { color: #4d739a; }
+
+  .legend { position: absolute; right: 15px; bottom: 5px; background: #ffffff; border: 1px solid #beb9ab; padding: 8px 12px; font-size: 10px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Diagrama de Classes - Sistema Food Delivery</div>
+  <div class="subtitle">10 classes principais com herança, associação, agregação e composição</div>
+  <div class="diagram">
+    <svg class="connectors">
+      <!-- Inheritance: Cliente -> Usuario (triangle) -->
+      <line x1="250" y1="290" x2="250" y2="220" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="250,210 240,220 260,220" fill="#ffffff" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="120" y1="290" x2="380" y2="290" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="120" y1="290" x2="120" y2="220" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="380" y1="290" x2="380" y2="220" stroke="#59523f" stroke-width="1.5"/>
+      <!-- Inheritance: Entregador -> Usuario -->
+      <line x1="120" y1="290" x2="120" y2="380" stroke="#59523f" stroke-width="1.5"/>
+
+      <!-- Cliente (250, 290) -> Pedido (700, 290) Association -->
+      <line x1="385" y1="345" x2="615" y2="345" stroke="#59523f" stroke-width="1.5"/>
+      <text x="450" y="338" font-size="11" fill="#59523f">1</text>
+      <text x="600" y="338" font-size="11" fill="#59523f">*</text>
+      <text x="490" y="338" font-size="10" fill="#8e8c85" font-style="italic">faz</text>
+
+      <!-- Pedido (700, 290) -> ItemPedido (1000, 290) Composition -->
+      <line x1="855" y1="345" x2="1010" y2="345" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="855,345 843,338 843,352" fill="#59523f"/>
+      <text x="870" y="338" font-size="11" fill="#59523f">1</text>
+      <text x="990" y="338" font-size="11" fill="#59523f">*</text>
+      <text x="905" y="338" font-size="10" fill="#8e8c85" font-style="italic">contém</text>
+
+      <!-- ItemPedido (1000, 290) -> Produto (1000, 500) Association -->
+      <line x1="1110" y1="395" x2="1110" y2="500" stroke="#59523f" stroke-width="1.5"/>
+      <text x="1117" y="415" font-size="11" fill="#59523f">*</text>
+      <text x="1117" y="495" font-size="11" fill="#59523f">1</text>
+      <text x="1117" y="450" font-size="10" fill="#8e8c85" font-style="italic">ref.</text>
+
+      <!-- Restaurante (250, 580) -> Produto (1000, 580) Aggregation -->
+      <line x1="385" y1="640" x2="1010" y2="640" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="385,640 397,633 397,647" fill="#ffffff" stroke="#59523f" stroke-width="1.5"/>
+      <text x="450" y="633" font-size="11" fill="#59523f">1</text>
+      <text x="990" y="633" font-size="11" fill="#59523f">*</text>
+      <text x="490" y="633" font-size="10" fill="#8e8c85" font-style="italic">fornece</text>
+
+      <!-- Restaurante (250, 580) -> Pedido (700, 290) Association -->
+      <line x1="320" y1="580" x2="320" y2="450" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="320" y1="450" x2="700" y2="450" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="700" y1="450" x2="700" y2="395" stroke="#59523f" stroke-width="1.5"/>
+      <text x="700" y="445" font-size="11" fill="#59523f">1</text>
+      <text x="325" y="495" font-size="11" fill="#59523f">*</text>
+
+      <!-- Pedido (700, 290) -> Pagamento (700, 80) -->
+      <line x1="760" y1="220" x2="760" y2="160" stroke="#59523f" stroke-width="1.5"/>
+      <text x="767" y="200" font-size="11" fill="#59523f">1</text>
+      <text x="767" y="170" font-size="11" fill="#59523f">1</text>
+      <text x="767" y="190" font-size="10" fill="#8e8c85" font-style="italic">pago</text>
+
+      <!-- Pedido (700, 290) -> Avaliacao (1300, 290) -->
+      <line x1="855" y1="345" x2="900" y2="345" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="900" y1="345" x2="900" y2="80" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="900" y1="80" x2="1300" y2="80" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="1300" y1="80" x2="1300" y2="220" stroke="#59523f" stroke-width="1.5"/>
+      <text x="910" y="75" font-size="11" fill="#59523f">1</text>
+      <text x="1290" y="215" font-size="11" fill="#59523f">*</text>
+
+      <!-- Entregador (120, 380) -> Pedido (700, 290) -->
+      <line x1="245" y1="435" x2="700" y2="435" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="700" y1="435" x2="700" y2="395" stroke="#59523f" stroke-width="1.5"/>
+      <text x="270" y="428" font-size="11" fill="#59523f">1</text>
+      <text x="690" y="428" font-size="11" fill="#59523f">*</text>
+      <text x="450" y="428" font-size="10" fill="#8e8c85" font-style="italic">entrega</text>
+
+      <!-- Cupom (250, 780) -> Pedido (700, 290) -->
+      <line x1="385" y1="780" x2="650" y2="780" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="650" y1="780" x2="650" y2="395" stroke="#59523f" stroke-width="1.5"/>
+      <text x="450" y="773" font-size="11" fill="#59523f">1</text>
+      <text x="640" y="450" font-size="11" fill="#59523f">*</text>
+      <text x="490" y="773" font-size="10" fill="#8e8c85" font-style="italic">aplica</text>
+
+      <!-- Endereco (1300, 580) -> Cliente -->
+      <line x1="1300" y1="580" x2="1300" y2="345" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="1300" y1="345" x2="385" y2="345" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="1300,580 1293,568 1307,568" fill="#ffffff" stroke="#59523f" stroke-width="1.5"/>
+      <text x="1290" y="575" font-size="11" fill="#59523f">1..*</text>
+      <text x="1290" y="450" font-size="11" fill="#59523f">*</text>
+    </svg>
+
+    <!-- Usuario (abstract) -->
+    <div class="class-box class-abstract" style="left: 145px; top: 80px; width: 220px;">
+      <div class="class-name">«abstract» Usuario</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>nome: String</div>
+        <div class="row"><span class="vis-private">- </span>email: String</div>
+        <div class="row"><span class="vis-private">- </span>telefone: String</div>
+        <div class="row"><span class="vis-private">- </span>senha: String</div>
+        <div class="row"><span class="vis-protected"># </span>tipoUsuario: String</div>
+        <div class="row"><span class="vis-public">~ </span>dataCadastro: DateTime</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>autenticar(): bool</div>
+        <div class="row"><span class="vis-public">+ </span>atualizarPerfil(): void</div>
+        <div class="row"><span class="vis-public">+ </span>deletarConta(): void</div>
+      </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="class-box" style="left: 145px; top: 295px; width: 240px;">
+      <div class="class-name">Cliente</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>enderecos: List&lt;Endereco&gt;</div>
+        <div class="row"><span class="vis-private">- </span>cartoes: List&lt;Cartao&gt;</div>
+        <div class="row"><span class="vis-private">- </span>avaliacaoMedia: double</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>fazerPedido(): Pedido</div>
+        <div class="row"><span class="vis-public">+ </span>avaliar(): void</div>
+        <div class="row"><span class="vis-public">+ </span>cancelarPedido(): void</div>
+      </div>
+    </div>
+
+    <!-- Entregador -->
+    <div class="class-box" style="left: 5px; top: 380px; width: 240px;">
+      <div class="class-name">Entregador</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>cnh: String</div>
+        <div class="row"><span class="vis-private">- </span>veiculo: String</div>
+        <div class="row"><span class="vis-private">- </span>disponivel: bool</div>
+        <div class="row"><span class="vis-private">- </span>localizacao: GeoPoint</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>aceitarEntrega(): void</div>
+        <div class="row"><span class="vis-public">+ </span>atualizarStatus(): void</div>
+        <div class="row"><span class="vis-public">+ </span>verificarRota(): Rota</div>
+      </div>
+    </div>
+
+    <!-- Restaurante -->
+    <div class="class-box" style="left: 145px; top: 585px; width: 240px;">
+      <div class="class-name">Restaurante</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>nome: String</div>
+        <div class="row"><span class="vis-private">- </span>cnpj: String</div>
+        <div class="row"><span class="vis-private">- </span>endereco: String</div>
+        <div class="row"><span class="vis-private">- </span>avaliacaoMedia: double</div>
+        <div class="row"><span class="vis-private">- </span>tempoEntrega: int</div>
+        <div class="row"><span class="vis-private">- </span>aberto: bool</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>gerenciarCardapio(): void</div>
+        <div class="row"><span class="vis-public">+ </span>aceitarPedido(): void</div>
+        <div class="row"><span class="vis-public">+ </span>criarPromocao(): void</div>
+      </div>
+    </div>
+
+    <!-- Pedido -->
+    <div class="class-box" style="left: 615px; top: 220px; width: 240px;">
+      <div class="class-name">Pedido</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>dataHora: DateTime</div>
+        <div class="row"><span class="vis-private">- </span>status: String</div>
+        <div class="row"><span class="vis-private">- </span>valorTotal: double</div>
+        <div class="row"><span class="vis-private">- </span>valorFrete: double</div>
+        <div class="row"><span class="vis-private">- </span>formaPagamento: String</div>
+        <div class="row"><span class="vis-private">- </span>enderecoEntrega: String</div>
+        <div class="row"><span class="vis-public">~ </span>tempoEstimado: int</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>calcularTotal(): double</div>
+        <div class="row"><span class="vis-public">+ </span>aplicarCupom(): void</div>
+        <div class="row"><span class="vis-public">+ </span>cancelar(): void</div>
+        <div class="row"><span class="vis-public">+ </span>atualizarStatus(): void</div>
+      </div>
+    </div>
+
+    <!-- ItemPedido -->
+    <div class="class-box" style="left: 1010px; top: 295px; width: 200px;">
+      <div class="class-name">ItemPedido</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>quantidade: int</div>
+        <div class="row"><span class="vis-private">- </span>precoUnitario: double</div>
+        <div class="row"><span class="vis-private">- </span>observacoes: String</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>calcularSubtotal(): double</div>
+      </div>
+    </div>
+
+    <!-- Produto -->
+    <div class="class-box" style="left: 1010px; top: 500px; width: 220px;">
+      <div class="class-name">Produto</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>nome: String</div>
+        <div class="row"><span class="vis-private">- </span>descricao: String</div>
+        <div class="row"><span class="vis-private">- </span>preco: double</div>
+        <div class="row"><span class="vis-private">- </span>categoria: String</div>
+        <div class="row"><span class="vis-private">- </span>disponivel: bool</div>
+        <div class="row"><span class="vis-public">~ </span>tempoPreparo: int</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>atualizarPreco(): void</div>
+        <div class="row"><span class="vis-public">+ </span>mudarDisponibilidade(): void</div>
+      </div>
+    </div>
+
+    <!-- Pagamento -->
+    <div class="class-box" style="left: 615px; top: 80px; width: 240px;">
+      <div class="class-name">Pagamento</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>valor: double</div>
+        <div class="row"><span class="vis-private">- </span>metodo: String</div>
+        <div class="row"><span class="vis-private">- </span>status: String</div>
+        <div class="row"><span class="vis-private">- </span>dataHora: DateTime</div>
+        <div class="row"><span class="vis-private">- </span>transacaoId: String</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>processar(): bool</div>
+        <div class="row"><span class="vis-public">+ </span>estornar(): void</div>
+        <div class="row"><span class="vis-public">+ </span>verificarStatus(): String</div>
+      </div>
+    </div>
+
+    <!-- Avaliacao -->
+    <div class="class-box" style="left: 1180px; top: 220px; width: 240px;">
+      <div class="class-name">Avaliacao</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>nota: int (1-5)</div>
+        <div class="row"><span class="vis-private">- </span>comentario: String</div>
+        <div class="row"><span class="vis-private">- </span>dataHora: DateTime</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>publicar(): void</div>
+        <div class="row"><span class="vis-public">+ </span>moderar(): void</div>
+      </div>
+    </div>
+
+    <!-- Cupom -->
+    <div class="class-box" style="left: 145px; top: 780px; width: 240px;">
+      <div class="class-name">Cupom</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>codigo: String</div>
+        <div class="row"><span class="vis-private">- </span>descontoPercentual: double</div>
+        <div class="row"><span class="vis-private">- </span>descontoFixo: double</div>
+        <div class="row"><span class="vis-private">- </span>validade: DateTime</div>
+        <div class="row"><span class="vis-private">- </span>usosMaximos: int</div>
+        <div class="row"><span class="vis-private">- </span>usosAtuais: int</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>validar(): bool</div>
+        <div class="row"><span class="vis-public">+ </span>aplicar(): void</div>
+      </div>
+    </div>
+
+    <!-- Endereco -->
+    <div class="class-box" style="left: 1180px; top: 580px; width: 240px;">
+      <div class="class-name">Endereco</div>
+      <div class="class-section attrs">
+        <div class="row"><span class="vis-private">- </span>id: int</div>
+        <div class="row"><span class="vis-private">- </span>logradouro: String</div>
+        <div class="row"><span class="vis-private">- </span>numero: String</div>
+        <div class="row"><span class="vis-private">- </span>complemento: String</div>
+        <div class="row"><span class="vis-private">- </span>bairro: String</div>
+        <div class="row"><span class="vis-private">- </span>cidade: String</div>
+        <div class="row"><span class="vis-private">- </span>cep: String</div>
+        <div class="row"><span class="vis-private">- </span>latitude: double</div>
+        <div class="row"><span class="vis-private">- </span>longitude: double</div>
+      </div>
+      <div class="class-section methods">
+        <div class="row"><span class="vis-public">+ </span>validarCEP(): bool</div>
+        <div class="row"><span class="vis-public">+ </span>geocodificar(): GeoPoint</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

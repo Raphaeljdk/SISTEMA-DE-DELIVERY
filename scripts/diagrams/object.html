@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @page { size: 1500px 1100px; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #ffffff; font-family: 'Inter', sans-serif; color: #161514; }
+  .canvas { width: 1500px; height: 1100px; position: relative; background: #ffffff; padding: 25px; box-sizing: border-box; }
+  .title { text-align: center; font-size: 22px; font-weight: 700; color: #59523f; margin-bottom: 6px; letter-spacing: 0.5px; }
+  .subtitle { text-align: center; font-size: 12px; color: #8e8c85; margin-bottom: 15px; }
+  .diagram { position: relative; width: 1450px; height: 1010px; margin: 0 auto; }
+  svg.connectors { position: absolute; left: 0; top: 0; width: 1450px; height: 1010px; pointer-events: none; }
+
+  .obj-box { position: absolute; border: 2px solid #4d739a; background: #f3f8fc; min-width: 220px; box-shadow: 2px 2px 0 rgba(0,0,0,0.05); }
+  .obj-name { background: #4d739a; color: #ffffff; text-align: center; font-weight: 700; font-size: 13px; padding: 5px 8px; letter-spacing: 0.5px; }
+  .obj-name .instance { font-weight: 400; opacity: 0.85; }
+  .obj-section { padding: 6px 10px; font-size: 10.5px; line-height: 1.6; font-family: 'JetBrains Mono', monospace; background: #ffffff; }
+  .obj-section .row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .attr-key { color: #735bbc; font-weight: 600; }
+  .attr-val { color: #161514; }
+  .attr-val.string { color: #3c7850; }
+  .attr-val.number { color: #a78c55; }
+  .attr-val.bool { color: #a9564f; }
+
+  .legend { position: absolute; right: 15px; bottom: 5px; background: #ffffff; border: 1px solid #beb9ab; padding: 8px 12px; font-size: 10px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Diagrama de Objetos - Snapshot do Sistema</div>
+  <div class="subtitle">Cenário: Cliente Maria realizando Pedido #1001 - Burguer House - 25/03/2024 19:45</div>
+  <div class="diagram">
+    <svg class="connectors">
+      <!-- cliente1 -> pedido1 (fez) -->
+      <line x1="280" y1="245" x2="630" y2="245" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="630,245 618,238 618,252" fill="#59523f"/>
+      <text x="430" y="238" font-size="11" fill="#59523f" font-style="italic">fez</text>
+
+      <!-- pedido1 -> item1 (contém) -->
+      <line x1="870" y1="245" x2="1170" y2="245" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="1170,245 1158,238 1158,252" fill="#59523f"/>
+      <text x="975" y="238" font-size="11" fill="#59523f" font-style="italic">contém</text>
+
+      <!-- item1 -> produto1 (referencia) -->
+      <line x1="1280" y1="325" x2="1280" y2="500" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="1280,500 1273,488 1287,488" fill="#59523f"/>
+      <text x="1290" y="420" font-size="11" fill="#59523f" font-style="italic">referencia</text>
+
+      <!-- pedido1 -> pagamento1 (pago com) -->
+      <line x1="750" y1="165" x2="750" y2="80" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="750" y1="80" x2="900" y2="80" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="900" y1="80" x2="900" y2="165" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="900,165 893,153 907,153" fill="#59523f"/>
+      <text x="780" y="75" font-size="11" fill="#59523f" font-style="italic">pago com</text>
+
+      <!-- pedido1 -> entregador1 (atribuído a) -->
+      <line x1="630" y1="325" x2="630" y2="510" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="630" y1="510" x2="280" y2="510" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="280" y1="510" x2="280" y2="580" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="280,580 273,568 287,568" fill="#59523f"/>
+      <text x="380" y="503" font-size="11" fill="#59523f" font-style="italic">atribuído a</text>
+
+      <!-- restaurante1 -> produto1 (fornece) -->
+      <line x1="500" y1="700" x2="1170" y2="700" stroke="#59523f" stroke-width="1.5"/>
+      <line x1="1170" y1="700" x2="1170" y2="660" stroke="#59523f" stroke-width="1.5"/>
+      <polygon points="1170,660 1163,672 1177,672" fill="#59523f"/>
+      <text x="780" y="693" font-size="11" fill="#59523f" font-style="italic">fornece</text>
+    </svg>
+
+    <!-- cliente1 -->
+    <div class="obj-box" style="left: 50px; top: 165px; width: 230px;">
+      <div class="obj-name">cliente1: <span class="instance">Cliente</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">001</span></div>
+        <div class="row"><span class="attr-key">nome</span> = <span class="attr-val string">"Maria Santos"</span></div>
+        <div class="row"><span class="attr-key">email</span> = <span class="attr-val string">"maria@gmail.com"</span></div>
+        <div class="row"><span class="attr-key">telefone</span> = <span class="attr-val string">"(11) 98765-4321"</span></div>
+        <div class="row"><span class="attr-key">tipoUsuario</span> = <span class="attr-val string">"Cliente"</span></div>
+        <div class="row"><span class="attr-key">enderecos</span> = [<span class="attr-val string">"Rua A, 123"</span>, <span class="attr-val string">"Av B, 456"</span>]</div>
+      </div>
+    </div>
+
+    <!-- pedido1 -->
+    <div class="obj-box" style="left: 630px; top: 165px; width: 240px;">
+      <div class="obj-name">pedido1: <span class="instance">Pedido</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">1001</span></div>
+        <div class="row"><span class="attr-key">dataHora</span> = <span class="attr-val string">25/03/2024 19:45</span></div>
+        <div class="row"><span class="attr-key">status</span> = <span class="attr-val string">"Em preparação"</span></div>
+        <div class="row"><span class="attr-key">valorTotal</span> = <span class="attr-val number">89.90</span></div>
+        <div class="row"><span class="attr-key">valorFrete</span> = <span class="attr-val number">7.90</span></div>
+        <div class="row"><span class="attr-key">formaPagamento</span> = <span class="attr-val string">"PIX"</span></div>
+        <div class="row"><span class="attr-key">enderecoEntrega</span> = <span class="attr-val string">"Rua A, 123"</span></div>
+      </div>
+    </div>
+
+    <!-- pagamento1 -->
+    <div class="obj-box" style="left: 780px; top: 10px; width: 240px;">
+      <div class="obj-name">pagamento1: <span class="instance">Pagamento</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">4001</span></div>
+        <div class="row"><span class="attr-key">valor</span> = <span class="attr-val number">89.90</span></div>
+        <div class="row"><span class="attr-key">metodo</span> = <span class="attr-val string">"PIX"</span></div>
+        <div class="row"><span class="attr-key">status</span> = <span class="attr-val string">"Aprovado"</span></div>
+        <div class="row"><span class="attr-key">transacaoId</span> = <span class="attr-val string">"PIX-20240325-889"</span></div>
+      </div>
+    </div>
+
+    <!-- item1 -->
+    <div class="obj-box" style="left: 1170px; top: 165px; width: 220px;">
+      <div class="obj-name">item1: <span class="instance">ItemPedido</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">2001</span></div>
+        <div class="row"><span class="attr-key">quantidade</span> = <span class="attr-val number">2</span></div>
+        <div class="row"><span class="attr-key">precoUnitario</span> = <span class="attr-val number">25.90</span></div>
+        <div class="row"><span class="attr-key">observacoes</span> = <span class="attr-val string">"Sem cebola"</span></div>
+      </div>
+    </div>
+
+    <!-- produto1 -->
+    <div class="obj-box" style="left: 1170px; top: 500px; width: 220px;">
+      <div class="obj-name">produto1: <span class="instance">Produto</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">3001</span></div>
+        <div class="row"><span class="attr-key">nome</span> = <span class="attr-val string">"X-Burger Especial"</span></div>
+        <div class="row"><span class="attr-key">preco</span> = <span class="attr-val number">25.90</span></div>
+        <div class="row"><span class="attr-key">categoria</span> = <span class="attr-val string">"Hambúrgueres"</span></div>
+        <div class="row"><span class="attr-key">disponivel</span> = <span class="attr-val bool">true</span></div>
+      </div>
+    </div>
+
+    <!-- restaurante1 -->
+    <div class="obj-box" style="left: 270px; top: 580px; width: 230px;">
+      <div class="obj-name">restaurante1: <span class="instance">Restaurante</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">101</span></div>
+        <div class="row"><span class="attr-key">nome</span> = <span class="attr-val string">"Burguer House"</span></div>
+        <div class="row"><span class="attr-key">cnpj</span> = <span class="attr-val string">"12.345.678/0001-90"</span></div>
+        <div class="row"><span class="attr-key">avaliacaoMedia</span> = <span class="attr-val number">4.8</span></div>
+        <div class="row"><span class="attr-key">tempoEntrega</span> = <span class="attr-val number">30</span></div>
+        <div class="row"><span class="attr-key">aberto</span> = <span class="attr-val bool">true</span></div>
+      </div>
+    </div>
+
+    <!-- entregador1 -->
+    <div class="obj-box" style="left: 50px; top: 580px; width: 230px;">
+      <div class="obj-name">entregador1: <span class="instance">Entregador</span></div>
+      <div class="obj-section">
+        <div class="row"><span class="attr-key">id</span> = <span class="attr-val number">501</span></div>
+        <div class="row"><span class="attr-key">nome</span> = <span class="attr-val string">"João Pereira"</span></div>
+        <div class="row"><span class="attr-key">cnh</span> = <span class="attr-val string">"12345678900"</span></div>
+        <div class="row"><span class="attr-key">veiculo</span> = <span class="attr-val string">"Moto Honda CG 160"</span></div>
+        <div class="row"><span class="attr-key">disponivel</span> = <span class="attr-val bool">true</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

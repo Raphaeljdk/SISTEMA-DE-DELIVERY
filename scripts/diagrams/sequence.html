@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 1400px 950px; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #ffffff; font-family: 'Inter', sans-serif; color: #161514; }
+  .canvas { width: 1400px; height: 950px; position: relative; background: #ffffff; padding: 25px; box-sizing: border-box; }
+  .title { text-align: center; font-size: 22px; font-weight: 700; color: #59523f; margin-bottom: 6px; letter-spacing: 0.5px; }
+  .subtitle { text-align: center; font-size: 12px; color: #8e8c85; margin-bottom: 15px; }
+  .diagram { position: relative; width: 1350px; height: 870px; margin: 0 auto; }
+  svg.diagram-svg { position: absolute; left: 0; top: 0; width: 1350px; height: 870px; }
+  .legend { position: absolute; right: 15px; bottom: 5px; background: #ffffff; border: 1px solid #beb9ab; padding: 8px 12px; font-size: 10px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Diagrama de Sequência - Fluxo: Cliente Realiza Pedido com Sucesso</div>
+  <div class="subtitle">5 lifelines: Cliente, App Mobile, Servidor, Restaurante, Gateway de Pagamento</div>
+  <div class="diagram">
+    <svg class="diagram-svg" viewBox="0 0 1350 870">
+      <!-- Lifelines (vertical dashed lines) -->
+      <line x1="120" y1="80" x2="120" y2="830" stroke="#59523f" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line x1="380" y1="80" x2="380" y2="830" stroke="#59523f" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line x1="640" y1="80" x2="640" y2="830" stroke="#59523f" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line x1="900" y1="80" x2="900" y2="830" stroke="#59523f" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line x1="1180" y1="80" x2="1180" y2="830" stroke="#59523f" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+      <!-- Actor boxes (top) -->
+      <!-- Cliente -->
+      <rect x="60" y="30" width="120" height="50" fill="#f3f8fc" stroke="#4d739a" stroke-width="2" rx="6"/>
+      <text x="120" y="55" font-size="13" font-weight="700" text-anchor="middle" fill="#161514">Cliente</text>
+      <text x="120" y="72" font-size="10" text-anchor="middle" fill="#8e8c85" font-style="italic">ator</text>
+
+      <!-- App Mobile -->
+      <rect x="320" y="30" width="120" height="50" fill="#fdfaf2" stroke="#8f7423" stroke-width="2" rx="6"/>
+      <text x="380" y="55" font-size="13" font-weight="700" text-anchor="middle" fill="#161514">App Mobile</text>
+      <text x="380" y="72" font-size="10" text-anchor="middle" fill="#8e8c85" font-style="italic">:MobileApp</text>
+
+      <!-- Servidor -->
+      <rect x="580" y="30" width="120" height="50" fill="#f2f9f4" stroke="#3c7850" stroke-width="2" rx="6"/>
+      <text x="640" y="55" font-size="13" font-weight="700" text-anchor="middle" fill="#161514">Servidor</text>
+      <text x="640" y="72" font-size="10" text-anchor="middle" fill="#8e8c85" font-style="italic">:BackendAPI</text>
+
+      <!-- Restaurante -->
+      <rect x="840" y="30" width="120" height="50" fill="#fdfaf2" stroke="#8f7423" stroke-width="2" rx="6"/>
+      <text x="900" y="55" font-size="13" font-weight="700" text-anchor="middle" fill="#161514">Restaurante</text>
+      <text x="900" y="72" font-size="10" text-anchor="middle" fill="#8e8c85" font-style="italic">:PainelRest</text>
+
+      <!-- Gateway Pagamento -->
+      <rect x="1110" y="30" width="140" height="50" fill="#fdf2f2" stroke="#a9564f" stroke-width="2" rx="6"/>
+      <text x="1180" y="55" font-size="13" font-weight="700" text-anchor="middle" fill="#161514">Gateway</text>
+      <text x="1180" y="72" font-size="10" text-anchor="middle" fill="#8e8c85" font-style="italic">:PagamentoAPI</text>
+
+      <!-- Activation bars (vertical rectangles on lifelines) -->
+      <rect x="375" y="130" width="10" height="690" fill="#fdfaf2" stroke="#8f7423" stroke-width="0.5"/>
+      <rect x="635" y="170" width="10" height="610" fill="#f2f9f4" stroke="#3c7850" stroke-width="0.5"/>
+      <rect x="895" y="280" width="10" height="180" fill="#fdfaf2" stroke="#8f7423" stroke-width="0.5"/>
+      <rect x="1175" y="400" width="10" height="100" fill="#fdf2f2" stroke="#a9564f" stroke-width="0.5"/>
+
+      <!-- Messages -->
+      <!-- 1. Cliente -> App: Seleciona produtos -->
+      <line x1="120" y1="130" x2="375" y2="130" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="245" y="124" font-size="11" text-anchor="middle" fill="#161514">1: selecionarProdutos()</text>
+
+      <!-- 2. App -> Servidor: Envia pedido -->
+      <line x1="385" y1="170" x2="635" y2="170" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="510" y="164" font-size="11" text-anchor="middle" fill="#161514">2: enviarPedido(dados)</text>
+
+      <!-- 3. Servidor -> Restaurante: Valida itens (self-call) -->
+      <path d="M 645 200 Q 700 200 700 230 Q 700 250 645 250" fill="none" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="710" y="220" font-size="11" fill="#161514">3: validarItens()</text>
+
+      <!-- 4. Servidor -> Restaurante: Verifica disponibilidade -->
+      <line x1="645" y1="280" x2="895" y2="280" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="770" y="274" font-size="11" text-anchor="middle" fill="#161514">4: verificarDisponibilidade()</text>
+
+      <!-- 5. Restaurante -> Servidor: Confirma disponibilidade -->
+      <line x1="895" y1="320" x2="645" y2="320" stroke="#161514" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAsync)"/>
+      <text x="770" y="314" font-size="11" text-anchor="middle" fill="#161514">5: itensDisponiveis = true</text>
+
+      <!-- 6. Servidor -> Gateway: Processa pagamento -->
+      <line x1="645" y1="400" x2="1175" y2="400" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="910" y="394" font-size="11" text-anchor="middle" fill="#161514">6: processarPagamento(valor, PIX)</text>
+
+      <!-- 7. Gateway -> Servidor: Pagamento aprovado -->
+      <line x1="1175" y1="500" x2="645" y2="500" stroke="#161514" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAsync)"/>
+      <text x="910" y="494" font-size="11" text-anchor="middle" fill="#161514">7: pagamentoAprovado(transacaoId)</text>
+
+      <!-- 8. Servidor -> Restaurante: Confirma pedido -->
+      <line x1="645" y1="560" x2="895" y2="560" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="770" y="554" font-size="11" text-anchor="middle" fill="#161514">8: confirmarPedido(pedidoId)</text>
+
+      <!-- 9. Restaurante -> Servidor: Pedido aceito -->
+      <line x1="895" y1="610" x2="645" y2="610" stroke="#161514" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAsync)"/>
+      <text x="770" y="604" font-size="11" text-anchor="middle" fill="#161514">9: pedidoAceito(status)</text>
+
+      <!-- 10. Servidor -> App: Pedido confirmado -->
+      <line x1="645" y1="680" x2="385" y2="680" stroke="#161514" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAsync)"/>
+      <text x="510" y="674" font-size="11" text-anchor="middle" fill="#161514">10: pedidoConfirmado(detalhes)</text>
+
+      <!-- 11. App -> Cliente: Notificação push -->
+      <line x1="375" y1="760" x2="120" y2="760" stroke="#161514" stroke-width="1.5" marker-end="url(#arrowSync)"/>
+      <text x="245" y="754" font-size="11" text-anchor="middle" fill="#161514">11: exibirNotificacao(pedido)</text>
+
+      <!-- Notes -->
+      <rect x="1060" y="780" width="270" height="60" fill="#fff7ed" stroke="#a78c55" stroke-width="1" rx="4"/>
+      <text x="1075" y="800" font-size="10" fill="#59523f" font-weight="600">Nota:</text>
+      <text x="1075" y="816" font-size="10" fill="#161514">Caso o pagamento falhe, o servidor</text>
+      <text x="1075" y="830" font-size="10" fill="#161514">retorna erro ao App (fluxo alternativo).</text>
+
+      <!-- Arrows -->
+      <defs>
+        <marker id="arrowSync" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#161514"/>
+        </marker>
+        <marker id="arrowAsync" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="#161514" stroke-width="1.5"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+</body>
+</html>
