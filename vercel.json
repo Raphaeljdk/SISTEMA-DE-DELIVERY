@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "bun install",
+  "ignoreCommand": "git log -m --first-parent --format=%s HEAD~1..HEAD | grep -q '^chore: skip-deploy' && exit 0 || exit 1",
+  "github": {
+    "silent": false
+  },
+  "build": {
+    "env": {
+      "NEXT_PRISMA_CLIENT_ENGINE_TYPE": "library"
+    }
+  },
+  "crons": []
+}
