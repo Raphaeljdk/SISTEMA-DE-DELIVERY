@@ -19,7 +19,8 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-const PORT = 3003;
+const PORT = Number(process.env.PORT) || 3003;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 
 const httpServer = createServer((req, res) => {
   // Health check
@@ -53,7 +54,7 @@ const httpServer = createServer((req, res) => {
 });
 
 const io = new Server(httpServer, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: { origin: CORS_ORIGIN === "*" ? "*" : CORS_ORIGIN.split(","), methods: ["GET", "POST"] },
   path: "/socket.io/",
 });
 

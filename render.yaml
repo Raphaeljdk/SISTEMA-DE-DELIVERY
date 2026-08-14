@@ -1,0 +1,37 @@
+# Render Blueprint — Food Delivery System
+# Documentação: https://render.com/docs/blueprint-spec
+#
+# Como usar:
+#   1. Acesse https://dashboard.render.com
+#   2. New → Blueprint
+#   3. Selecione o repositório Raphaeljdk/SISTEMA-DE-DELIVERY
+#   4. O Render detecta este arquivo automaticamente
+#   5. Configure as variáveis de ambiente (abaixo)
+#
+# Serviços criados:
+#   - rastreamento-ws (Web Service, WebSocket na porta 3003)
+#
+# Custo: Free Tier disponível (750 horas/mês, sleeps após 15 min idle)
+
+services:
+  # ───────────────────────────────────────────────────────────────────────
+  # WebSocket Service — Rastreamento em tempo real
+  # ───────────────────────────────────────────────────────────────────────
+  - type: web
+    name: rastreamento-ws
+    runtime: node
+    rootDir: mini-services/rastreamento-service
+    plan: free
+    buildCommand: bun install --production
+    startCommand: bun index.ts
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3003
+      - key: CORS_ORIGIN
+        sync: false  # Configure manualmente: https://seu-app.vercel.app
+    # Render atribui uma URL pública automaticamente após primeiro deploy:
+    #   https://rastreamento-ws.onrender.com

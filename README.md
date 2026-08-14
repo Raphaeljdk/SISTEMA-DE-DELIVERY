@@ -384,20 +384,23 @@ DATABASE_URL="postgresql://...neon.tech/..." bun run db:seed
 
 O WebSocket não roda na Vercel (serverless). Opções:
 
-#### Opção A: Railway (recomendado)
-1. Acesse [railway.app](https://railway.app)
-2. New Project → Deploy from GitHub repo
-3. Selecione a pasta `mini-services/rastreamento-service`
-4. Configure variável de ambiente: `PORT=3003`
-5. Copie a URL pública (`https://xxx.up.railway.app`)
-6. No app Next.js, configure: `WS_PUBLIC_URL=wss://xxx.up.railway.app`
+#### Opção A: Render (recomendado, plano gratuito disponível)
+1. Acesse [render.com](https://render.com) e faça login com GitHub
+2. **New** → **Blueprint** → selecione o repositório
+3. O Render detecta o `render.yaml` e cria o serviço `rastreamento-ws` automaticamente
+4. Configure `CORS_ORIGIN` = URL da sua Vercel
+5. Após deploy, copie a URL pública (`https://rastreamento-ws.onrender.com`)
+6. No app Next.js (Vercel), configure:
+   - `WS_SERVICE_URL=https://rastreamento-ws.onrender.com`
+   - `NEXT_PUBLIC_WS_URL=https://rastreamento-ws.onrender.com`
 
-#### Opção B: Render
+#### Opção B: Render (deploy manual, sem Blueprint)
 1. Acesse [render.com](https://render.com)
-2. New → Web Service → conecte GitHub
+2. **New** → **Web Service** → conecte GitHub
 3. Root Directory: `mini-services/rastreamento-service`
-4. Build Command: `bun install`
+4. Build Command: `bun install --production`
 5. Start Command: `bun index.ts`
+6. Env vars: `PORT=3003`, `CORS_ORIGIN=https://sua-app.vercel.app`
 
 #### Opção C: Fly.io
 ```bash

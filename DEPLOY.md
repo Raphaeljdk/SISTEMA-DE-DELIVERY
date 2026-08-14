@@ -1,6 +1,6 @@
 # 🚀 Guia de Deploy — Food Delivery System
 
-Guia passo-a-passo para colocar o sistema em produção na Vercel + Neon PostgreSQL + Railway (WebSocket).
+Guia passo-a-passo para colocar o sistema em produção na Vercel + Neon PostgreSQL + Render (WebSocket).
 
 ---
 
@@ -9,7 +9,7 @@ Guia passo-a-passo para colocar o sistema em produção na Vercel + Neon Postgre
 - Conta no [GitHub](https://github.com) (já configurada: `Raphaeljdk/SISTEMA-DE-DELIVERY`)
 - Conta no [Vercel](https://vercel.com) (login com GitHub)
 - Conta no [Neon](https://neon.tech) (banco PostgreSQL gratuito)
-- Conta no [Railway](https://railway.app) (para WebSocket service)
+- Conta no [Render](https://render.com) (para WebSocket service)
 - Conta no [Stripe](https://stripe.com) (pagamentos)
 - Conta no [Mercado Pago Developers](https://www.mercadopago.com.br/developers)
 - Conta no [Cloudinary](https://cloudinary.com) (upload de imagens)
@@ -132,45 +132,86 @@ Após o deploy, volte aos painéis do Stripe e Mercado Pago e atualize as URLs d
 
 ---
 
-## 🛵 Passo 6: Deploy do WebSocket Service (Railway)
+## 🛵 Passo 6: Deploy do WebSocket Service (Render)
 
-O WebSocket não roda na Vercel (serverless). Use o Railway:
+O WebSocket não roda na Vercel (serverless). Use o Render (plano gratuito disponível).
 
-### 6.1 Deploy no Railway
+### 6.1 Deploy no Render (Blueprint automatizado)
 
-1. Acesse [railway.app](https://railway.app) → **New Project**
-2. **Deploy from GitHub repo** → selecione `Raphaeljdk/SISTEMA-DE-DELIVERY`
-3. **Settings**:
+O repositório já contém um arquivo `render.yaml` na raiz que automatiza o deploy:
+
+1. Acesse [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**
+2. Selecione o repositório `Raphaeljdk/SISTEMA-DE-DELIVERY`
+3. O Render detecta o `render.yaml` automaticamente e cria:
+   - Serviço **rastreamento-ws** (Web Service, porta 3003)
+4. Configure a variável `CORS_ORIGIN` com a URL da sua Vercel:
+   ```
+   https://seu-projeto.vercel.app
+   ```
+5. Clique em **Apply** e aguarde o build (~2 min)
+
+### 6.2 Deploy manual (alternativa ao Blueprint)
+
+Se preferir configurar manualmente:
+
+1. **New** → **Web Service**
+2. Conecte o repositório `Raphaeljdk/SISTEMA-DE-DELIVERY`
+3. Configurações:
+   - **Name**: `rastreamento-ws`
+   - **Runtime**: `Node` (ou `Docker` se quiser usar o Dockerfile)
    - **Root Directory**: `mini-services/rastreamento-service`
-   - **Build Command**: `bun install`
+   - **Build Command**: `bun install --production`
    - **Start Command**: `bun index.ts`
-4. **Variables**:
+   - **Plan**: `Free` (750h/mês, sleeps após 15 min idle) ou `Starter` ($7/mês, sempre ativo)
+4. **Environment Variables**:
+   - `NODE_ENV` = `production`
    - `PORT` = `3003`
-5. **Deploy** e aguarde
+   - `CORS_ORIGIN` = `https://seu-projeto.vercel.app`
+5. **Create Web Service**
 
-### 6.2 Configurar domínio público
+### 6.3 Obter URL pública do WebSocket
 
-1. Na aba **Settings** → **Networking**
-2. **Generate Domain** → copie a URL: `https://xxx.up.railway.app`
-3. No projeto Next.js na Vercel, adicione variável:
-   ```
-   WS_PUBLIC_URL=wss://xxx.up.railway.app
-   ```
+Após o primeiro deploy, o Render gera uma URL pública automaticamente:
 
-### 6.3 Atualizar hook no frontend
+```
+https://rastreamento-ws.onrender.com
+```
 
-Edite `src/hooks/use-rastreamento.ts` para usar a URL pública em produção:
+(ou o nome que você escolheu)
+
+### 6.4 Testar o serviço
+
+```bash
+# Health check (deve retornar JSON com status)
+curl https://rastreamento-ws.onrender.com/health
+
+# Resposta esperada:
+# {"ok":true,"service":"rastreamento","port":3003,"uptime":123.45}
+```
+
+### 6.5 Configurar variáveis na Vercel
+
+No projeto Next.js da Vercel, adicione as variáveis:
+
+```
+WS_SERVICE_URL=https://rastreamento-ws.onrender.com
+NEXT_PUBLIC_WS_URL=https://rastreamento-ws.onrender.com
+```
+
+> ⚠️ **Importante**: o Render Free Tier "adormece" o serviço após 15 min sem atividade.
+> A primeira requisição após isso pode demorar ~30 segundos para responder (cold start).
+> Para uso em produção real, considere o plano **Starter** ($7/mês) que mantém o serviço sempre ativo.
+
+### 6.6 Atualizar hook no frontend (já configurado)
+
+O hook `src/hooks/use-rastreamento.ts` já está preparado para ler `NEXT_PUBLIC_WS_URL` automaticamente:
 
 ```typescript
-const wsUrl = process.env.NODE_ENV === 'production'
-  ? process.env.NEXT_PUBLIC_WS_URL || '/'
-  : '/?XTransformPort=3003';
-
-const socket = io(wsUrl, {
-  path: '/socket.io/',
-  transports: ['websocket', 'polling'],
-});
+const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "/?XTransformPort=3003";
+const socket = io(wsUrl, { path: "/socket.io/", ... });
 ```
+
+Em desenvolvimento (sem `NEXT_PUBLIC_WS_URL`), ele usa o gateway Caddy local. Em produção, usa a URL do Render.
 
 ---
 
@@ -227,9 +268,12 @@ Após completar todos os passos, verifique:
 - O body deve ser raw (não JSON parsed) — já configurado no código
 
 ### WebSocket não conecta em produção
-- Verifique se o Railway service está rodando
-- Confirme `WS_PUBLIC_URL` na Vercel
-- Teste health check: `https://xxx.up.railway.app/health`
+- Verifique se o Render service está rodando (acesse `https://rastreamento-ws.onrender.com/health`)
+- Se estiver em Free Tier, pode estar "dormindo" — primeira req demora ~30s
+- Confirme `NEXT_PUBLIC_WS_URL` na Vercel (sem barra no final)
+- Verifique se `CORS_ORIGIN` no Render inclui a URL da sua Vercel
+- Teste conectar direto: `curl https://rastreamento-ws.onrender.com/socket.io/?EIO=4&transport=polling`
+- Logs do Render: **Dashboard → rastreamento-ws → Events / Logs**
 
 ### Upload de imagem falha
 - Verifique credenciais Cloudinary
@@ -248,12 +292,14 @@ Após completar todos os passos, verifique:
 |---------|----------------|--------|
 | Vercel | Hobby | 100 GB bandwidth/mês |
 | Neon | Free | 0.5 GB storage |
-| Railway | Trial | $5 credit (≈1 mês) |
+| Render | Free | 750h/mês, sleeps após 15 min idle |
 | Stripe | — | 4.99% + R$0,49 por transação |
 | Mercado Pago | — | 4.99% por transação |
 | Cloudinary | Free | 25 créditos/mês (~25 GB storage + bandwidth) |
 
 **Total mensal gratuito**: suficiente para MVP e testes iniciais.
+
+> 💡 Para produção sem cold start no WebSocket, upgrade o Render para **Starter** ($7/mês).
 
 ---
 

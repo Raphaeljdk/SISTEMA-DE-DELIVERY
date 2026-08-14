@@ -37,9 +37,15 @@ export function useRastreamento(options: UseRastreamentoOptions = {}) {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
+    // Em produção: usa NEXT_PUBLIC_WS_URL (Render URL, ex: wss://rastreamento-ws.onrender.com)
+    // Em desenvolvimento: usa o gateway local via XTransformPort=3003
+    const wsUrl =
+      process.env.NEXT_PUBLIC_WS_URL ||
+      "/?XTransformPort=3003";
+
     // Conecta passando a porta via XTransformPort (regra do gateway Caddy).
     // O path "/socket.io/" é o padrão do Socket.IO Server.
-    const socket = io("/?XTransformPort=3003", {
+    const socket = io(wsUrl, {
       path: "/socket.io/",
       transports: ["websocket", "polling"],
       reconnection: true,

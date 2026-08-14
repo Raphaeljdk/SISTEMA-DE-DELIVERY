@@ -24,7 +24,8 @@ export async function POST(
 
     // Repassa para o mini-service WebSocket
     try {
-      await fetch("http://localhost:3003/broadcast-status", {
+      const wsUrl = process.env.WS_SERVICE_URL || "http://localhost:3003";
+      await fetch(`${wsUrl}/broadcast-status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

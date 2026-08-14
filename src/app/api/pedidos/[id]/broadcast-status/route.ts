@@ -38,7 +38,8 @@ export async function POST(
     };
 
     try {
-      const wsResponse = await fetch("http://localhost:3003/broadcast-status", {
+      const wsUrl = process.env.WS_SERVICE_URL || "http://localhost:3003";
+      const wsResponse = await fetch(`${wsUrl}/broadcast-status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -66,3 +66,4 @@ server.log
 
 # Mini-services
 /mini-services/rastreamento-service/node_modules/
+tool-results/
