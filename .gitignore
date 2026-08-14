@@ -63,3 +63,6 @@ server.log
 *.db-journal
 .env.local
 .env.production
+
+# Mini-services
+/mini-services/rastreamento-service/node_modules/

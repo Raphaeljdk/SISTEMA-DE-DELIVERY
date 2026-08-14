@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Phone, MessageSquare, Bike, MapPin, Clock } from "lucide-react";
+import { Phone, MessageSquare, Bike, MapPin, Clock, Wifi, WifiOff } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useRastreamento } from "@/hooks/use-rastreamento";
+import { useEffect, useState } from "react";
 
 interface RastreamentoCardProps {
   pedido: {
@@ -26,35 +28,56 @@ interface RastreamentoCardProps {
 }
 
 export function RastreamentoCard({ pedido, entregador }: RastreamentoCardProps) {
+  const { connected, localizacao, ultimoStatus } = useRastreamento({
+    pedidoId: pedido.id,
+    entregadorId: entregador?.id,
+  });
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setElapsed((e) => e + 1);
-    }, 1000);
+    const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
   const minutosRestantes = Math.max(0, pedido.tempoEstimado - Math.floor(elapsed / 60));
+
+  // Posição do entregador no mapa (mockada se não houver WS)
+  const latBase = -23.5613;
+  const lngBase = -46.6565;
+  const entregadorLat = localizacao?.lat ?? latBase + 0.01;
+  const entregadorLng = localizacao?.lng ?? lngBase + 0.005;
 
   return (
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center justify-between font-serif text-lg">
           <span>Rastreamento</span>
-          <span className="flex items-center gap-2 text-sm font-normal text-primary">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-            </span>
-            Ao vivo
-          </span>
+          <div className="flex items-center gap-2">
+            <Badge variant={connected ? "default" : "secondary"} className="text-[10px]">
+              {connected ? (
+                <>
+                  <Wifi className="mr-1 h-3 w-3" />
+                  Ao vivo
+                </>
+              ) : (
+                <>
+                  <WifiOff className="mr-1 h-3 w-3" />
+                  Offline
+                </>
+              )}
+            </Badge>
+            {connected && (
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              </span>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Mapa placeholder */}
+        {/* Mapa SVG com posição do entregador */}
         <div className="relative mb-4 h-48 overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 via-secondary/10 to-primary/5">
-          {/* Grid pattern */}
           <div
             className="absolute inset-0 opacity-30"
             style={{
@@ -65,8 +88,8 @@ export function RastreamentoCard({ pedido, entregador }: RastreamentoCardProps) 
               backgroundSize: "20px 20px",
             }}
           />
-          {/* Rota SVG */}
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 200">
+            {/* Rota */}
             <path
               d="M 50 150 Q 100 50, 200 100 T 350 50"
               fill="none"
@@ -80,9 +103,13 @@ export function RastreamentoCard({ pedido, entregador }: RastreamentoCardProps) 
             <text x="50" y="170" textAnchor="middle" className="fill-foreground text-[10px]">
               Restaurante
             </text>
-            {/* Pino entregador (animado) */}
+            {/* Pino entregador (atualiza com localização real) */}
             <g>
-              <circle cx="200" cy="100" r="8" fill="#8f7423" />
+              <circle cx="200" cy="100" r="8" fill="#8f7423">
+                {connected && (
+                  <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite" />
+                )}
+              </circle>
               <Bike x="194" y="94" width="12" height="12" className="fill-white" />
             </g>
             {/* Pino destino */}
@@ -91,6 +118,13 @@ export function RastreamentoCard({ pedido, entregador }: RastreamentoCardProps) 
               Você
             </text>
           </svg>
+
+          {/* Coordenadas display (quando conectado) */}
+          {connected && localizacao && (
+            <div className="absolute bottom-2 left-2 rounded bg-background/90 px-2 py-1 text-[10px] font-mono">
+              {entregadorLat.toFixed(4)}, {entregadorLng.toFixed(4)}
+            </div>
+          )}
         </div>
 
         {/* ETA */}
@@ -111,6 +145,15 @@ export function RastreamentoCard({ pedido, entregador }: RastreamentoCardProps) 
             </p>
           </div>
         </div>
+
+        {/* Status update em tempo real */}
+        {ultimoStatus && (
+          <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-2 text-xs">
+            <span className="font-medium text-primary">Status atualizado:</span>{" "}
+            {ultimoStatus.status} ·{" "}
+            {new Date(ultimoStatus.timestamp || Date.now()).toLocaleTimeString("pt-BR")}
+          </div>
+        )}
 
         {/* Entregador */}
         {entregador && (
