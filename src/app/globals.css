@@ -1,0 +1,217 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+   PALETA "GOLDEN ACADEMIC" — derivada do PDF UML
+   Cores principais:
+     --primary:    #8f7423 (dourado mostarda)
+     --secondary:  #59523f (oliva escuro - header fill)
+     --bg:         #f1f1f0 (off-white)
+     --card:       #ffffff
+     --accent:     #9d8333 (acento dourado mais vivo)
+   ─────────────────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.97 0.005 80);           /* #f1f1f0 off-white */
+  --foreground: oklch(0.18 0.008 60);           /* #161514 near black */
+  --card: oklch(1 0 0);                          /* pure white */
+  --card-foreground: oklch(0.18 0.008 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.008 60);
+  --primary: oklch(0.58 0.12 80);               /* #8f7423 dourado */
+  --primary-foreground: oklch(0.98 0.005 80);   /* white-cream */
+  --secondary: oklch(0.42 0.025 70);            /* #59523f oliva escuro */
+  --secondary-foreground: oklch(0.98 0.005 80);
+  --muted: oklch(0.94 0.008 75);                /* #efefed */
+  --muted-foreground: oklch(0.55 0.015 70);     /* #8e8c85 */
+  --accent: oklch(0.65 0.13 85);                /* #9d8333 */
+  --accent-foreground: oklch(0.18 0.008 60);
+  --destructive: oklch(0.55 0.18 25);           /* #9d5852 vermelho terroso */
+  --border: oklch(0.85 0.015 75);               /* #beb9ab */
+  --input: oklch(0.92 0.012 75);
+  --ring: oklch(0.58 0.12 80);
+  --chart-1: oklch(0.58 0.12 80);               /* dourado */
+  --chart-2: oklch(0.55 0.10 160);              /* verde */
+  --chart-3: oklch(0.55 0.15 25);               /* vermelho */
+  --chart-4: oklch(0.55 0.10 220);              /* azul acinzentado */
+  --chart-5: oklch(0.65 0.13 50);               /* laranja terroso */
+  --sidebar: oklch(0.97 0.005 80);
+  --sidebar-foreground: oklch(0.18 0.008 60);
+  --sidebar-primary: oklch(0.42 0.025 70);
+  --sidebar-primary-foreground: oklch(0.98 0.005 80);
+  --sidebar-accent: oklch(0.94 0.008 75);
+  --sidebar-accent-foreground: oklch(0.18 0.008 60);
+  --sidebar-border: oklch(0.85 0.015 75);
+  --sidebar-ring: oklch(0.58 0.12 80);
+}
+
+.dark {
+  --background: oklch(0.18 0.008 60);
+  --foreground: oklch(0.96 0.005 80);
+  --card: oklch(0.23 0.01 60);
+  --card-foreground: oklch(0.96 0.005 80);
+  --popover: oklch(0.23 0.01 60);
+  --popover-foreground: oklch(0.96 0.005 80);
+  --primary: oklch(0.65 0.13 85);
+  --primary-foreground: oklch(0.18 0.008 60);
+  --secondary: oklch(0.30 0.015 65);
+  --secondary-foreground: oklch(0.96 0.005 80);
+  --muted: oklch(0.26 0.012 65);
+  --muted-foreground: oklch(0.70 0.012 70);
+  --accent: oklch(0.65 0.13 85);
+  --accent-foreground: oklch(0.18 0.008 60);
+  --destructive: oklch(0.55 0.18 25);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.65 0.13 85);
+  --chart-1: oklch(0.65 0.13 85);
+  --chart-2: oklch(0.55 0.10 160);
+  --chart-3: oklch(0.55 0.15 25);
+  --chart-4: oklch(0.55 0.10 220);
+  --chart-5: oklch(0.65 0.13 50);
+  --sidebar: oklch(0.23 0.01 60);
+  --sidebar-foreground: oklch(0.96 0.005 80);
+  --sidebar-primary: oklch(0.65 0.13 85);
+  --sidebar-primary-foreground: oklch(0.18 0.008 60);
+  --sidebar-accent: oklch(0.26 0.012 65);
+  --sidebar-accent-foreground: oklch(0.96 0.005 80);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.65 0.13 85);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  /* Headings use Playfair Display serif (academic feel) */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+   COMPONENT UTILITIES
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Subtle paper-like texture for hero sections */
+.bg-paper {
+  background-color: var(--background);
+  background-image:
+    linear-gradient(to right, rgba(89, 82, 63, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(89, 82, 63, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Accent left border (echoes the PDF cover's vertical anchor line) */
+.border-l-accent {
+  border-left: 4px solid var(--primary);
+}
+
+/* Star rating */
+.star-rating {
+  color: var(--primary);
+}
+
+/* Smooth focus rings */
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(89, 82, 63, 0.18);
+}
+
+/* Animated pulse for live indicators */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--muted) 25%, var(--card) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

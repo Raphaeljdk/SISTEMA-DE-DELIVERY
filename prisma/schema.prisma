@@ -1,0 +1,271 @@
+// Prisma schema - Sistema Food Delivery
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// USUÁRIO (classe abstrata base — especializada em Cliente, Entregador, Admin)
+// ───────────────────────────────────────────────────────────────────────────
+model Usuario {
+  id            String   @id @default(cuid())
+  nome          String
+  email         String   @unique
+  telefone      String
+  senhaHash     String
+  avatarUrl     String?
+  tipoUsuario   String   @default("CLIENTE") // CLIENTE | ENTREGADOR | RESTAURANTE | ADMIN
+  dataCadastro  DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  // Relacionamentos especializados
+  cliente       Cliente?
+  entregador    Entregador?
+  restaurante   Restaurante?
+
+  @@map("usuarios")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// CLIENTE
+// ───────────────────────────────────────────────────────────────────────────
+model Cliente {
+  id              String   @id @default(cuid())
+  usuarioId       String   @unique
+  usuario         Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  avaliacaoMedia  Float    @default(5.0)
+  dataCadastro    DateTime @default(now())
+
+  enderecos       Endereco[]
+  pedidos         Pedido[]
+  avaliacoes      Avaliacao[]
+  cartoes         Cartao[]
+
+  @@map("clientes")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// ENTREGADOR
+// ───────────────────────────────────────────────────────────────────────────
+model Entregador {
+  id              String   @id @default(cuid())
+  usuarioId       String   @unique
+  usuario         Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  cnh             String
+  veiculo         String
+  disponivel      Boolean  @default(true)
+  avaliacaoMedia  Float    @default(5.0)
+  localizacaoLat  Float?
+  localizacaoLng  Float?
+  dataCadastro    DateTime @default(now())
+
+  pedidos         Pedido[]
+
+  @@map("entregadores")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// RESTAURANTE
+// ───────────────────────────────────────────────────────────────────────────
+model Restaurante {
+  id              String   @id @default(cuid())
+  usuarioId       String?  @unique
+  usuario         Usuario? @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  nome            String
+  cnpj            String   @unique
+  descricao       String?
+  endereco        String
+  telefone        String
+  avaliacaoMedia  Float    @default(5.0)
+  tempoEntrega    Int      @default(30) // minutos
+  taxaEntrega     Float    @default(7.90)
+  comissao        Float    @default(0.12) // 12%
+  aberto          Boolean  @default(true)
+  imagemUrl       String?
+  categoria       String   @default("Brasileira")
+  dataCadastro    DateTime @default(now())
+
+  produtos        Produto[]
+  pedidos         Pedido[]
+  cupons          Cupom[]
+  avaliacoes      Avaliacao[]
+
+  @@map("restaurantes")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// PRODUTO
+// ───────────────────────────────────────────────────────────────────────────
+model Produto {
+  id            String   @id @default(cuid())
+  restauranteId String
+  restaurante   Restaurante @relation(fields: [restauranteId], references: [id], onDelete: Cascade)
+  nome          String
+  descricao     String?
+  preco         Float
+  categoria     String   @default("Geral")
+  disponivel    Boolean  @default(true)
+  imagemUrl     String?
+  tempoPreparo  Int      @default(15) // minutos
+  dataCadastro  DateTime @default(now())
+
+  itensPedido   ItemPedido[]
+
+  @@map("produtos")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// PEDIDO
+// ───────────────────────────────────────────────────────────────────────────
+model Pedido {
+  id              String   @id @default(cuid())
+  clienteId       String
+  cliente         Cliente   @relation(fields: [clienteId], references: [id])
+  restauranteId   String
+  restaurante     Restaurante @relation(fields: [restauranteId], references: [id])
+  entregadorId    String?
+  entregador      Entregador? @relation(fields: [entregadorId], references: [id])
+
+  dataHora        DateTime @default(now())
+  status          String   @default("AGUARDANDO_PAGAMENTO")
+  // AGUARDANDO_PAGAMENTO | PAGO | EM_PREPARACAO | SAIU_ENTREGA | ENTREGUE | CANCELADO
+
+  valorTotal      Float
+  valorFrete      Float
+  valorDesconto   Float    @default(0)
+  formaPagamento  String   @default("PIX") // PIX | CARTAO | CARTEIRA
+  enderecoEntrega String
+  codigoRastreio  String?
+  tempoEstimado   Int      @default(45) // minutos
+  observacoes     String?
+
+  cupomId         String?
+  cupom           Cupom?   @relation(fields: [cupomId], references: [id])
+
+  itens           ItemPedido[]
+  pagamento       Pagamento?
+  avaliacao       Avaliacao?
+
+  @@map("pedidos")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// ITEM PEDIDO (composição de Pedido)
+// ───────────────────────────────────────────────────────────────────────────
+model ItemPedido {
+  id            String   @id @default(cuid())
+  pedidoId      String
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId     String
+  produto       Produto  @relation(fields: [produtoId], references: [id])
+  quantidade    Int
+  precoUnitario Float
+  observacoes   String?
+  adicionais    String?  // JSON string
+  subtotal      Float
+
+  @@map("itens_pedido")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// PAGAMENTO
+// ───────────────────────────────────────────────────────────────────────────
+model Pagamento {
+  id            String   @id @default(cuid())
+  pedidoId      String   @unique
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  valor         Float
+  metodo        String   // PIX | CARTAO | CARTEIRA
+  status        String   @default("PENDENTE") // PENDENTE | APROVADO | RECUSADO | ESTORNADO
+  transacaoId   String?
+  parcelas      Int      @default(1)
+  dataHora      DateTime @default(now())
+
+  @@map("pagamentos")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// AVALIAÇÃO
+// ───────────────────────────────────────────────────────────────────────────
+model Avaliacao {
+  id            String   @id @default(cuid())
+  clienteId     String
+  cliente       Cliente   @relation(fields: [clienteId], references: [id])
+  restauranteId String?
+  restaurante   Restaurante? @relation(fields: [restauranteId], references: [id])
+  pedidoId      String?  @unique
+  pedido        Pedido?  @relation(fields: [pedidoId], references: [id])
+  nota          Int      // 1-5
+  comentario    String?
+  tipo          String   @default("RESTAURANTE") // RESTAURANTE | ENTREGADOR | PRODUTO
+  dataHora      DateTime @default(now())
+
+  @@map("avaliacoes")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// CUPOM
+// ───────────────────────────────────────────────────────────────────────────
+model Cupom {
+  id                   String   @id @default(cuid())
+  restauranteId        String?
+  restaurante          Restaurante? @relation(fields: [restauranteId], references: [id])
+  codigo               String   @unique
+  descontoPercentual   Float    @default(0)
+  descontoFixo         Float    @default(0)
+  validade             DateTime
+  usosMaximos          Int      @default(100)
+  usosAtuais           Int      @default(0)
+  tipo                 String   @default("PERCENTUAL") // PERCENTUAL | FIXO | FRETE_GRATIS
+  ativo                Boolean  @default(true)
+  dataCadastro         DateTime @default(now())
+
+  pedidos              Pedido[]
+
+  @@map("cupons")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// ENDEREÇO
+// ───────────────────────────────────────────────────────────────────────────
+model Endereco {
+  id          String   @id @default(cuid())
+  clienteId   String
+  cliente     Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  apelido     String   @default("Casa") // Casa | Trabalho | Outro
+  rua         String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String
+  cep         String
+  latitude    Float?
+  longitude   Float?
+  dataCadastro DateTime @default(now())
+
+  @@map("enderecos")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// CARTÃO (do cliente — para pagamentos)
+// ───────────────────────────────────────────────────────────────────────────
+model Cartao {
+  id          String   @id @default(cuid())
+  clienteId   String
+  cliente     Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  bandeira    String   // VISA | MASTERCARD | ELO | AMEX
+  ultimos4    String
+  token       String   // token do gateway (nunca armazenar o número)
+  validade    String   // MM/AA
+  principal   Boolean  @default(false)
+  dataCadastro DateTime @default(now())
+
+  @@map("cartoes")
+}
