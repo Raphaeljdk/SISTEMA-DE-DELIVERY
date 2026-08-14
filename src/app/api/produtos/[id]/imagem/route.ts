@@ -1,10 +1,13 @@
 /**
  * PATCH /api/produtos/[id]/imagem
- * Atualiza a imagem de um produto (upload + atualiza Produto.imagemUrl).
+ * Atualiza a imagem de um produto (apenas dono do restaurante logado).
+ *
+ * Body: multipart/form-data com campo "file"
  */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { uploadImagem } from "@/lib/cloudinary";
+import { getUsuarioFromRequest } from "@/lib/auth";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -15,10 +18,29 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const usuario = await getUsuarioFromRequest(req);
 
-    const produto = await db.produto.findUnique({ where: { id } });
+    if (!usuario || usuario.tipoUsuario !== "RESTAURANTE") {
+      return NextResponse.json(
+        { error: "Apenas restaurantes podem fazer upload" },
+        { status: 403 }
+      );
+    }
+
+    const produto = await db.produto.findUnique({
+      where: { id },
+      select: { restauranteId: true, nome: true },
+    });
+
     if (!produto) {
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+    }
+
+    if (produto.restauranteId !== usuario.restauranteId) {
+      return NextResponse.json(
+        { error: "Este produto não pertence ao seu restaurante" },
+        { status: 403 }
+      );
     }
 
     const formData = await req.formData();
@@ -30,13 +52,16 @@ export async function PATCH(
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: `Tipo não suportado: ${file.type}` },
+        { error: `Tipo não suportado: ${file.type}. Aceitos: JPEG, PNG, WebP` },
         { status: 400 }
       );
     }
 
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "Arquivo excede 5 MB" }, { status: 400 });
+      return NextResponse.json(
+        { error: `Arquivo excede 5 MB (${(file.size / 1024 / 1024).toFixed(2)} MB)` },
+        { status: 400 }
+      );
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

@@ -3,12 +3,12 @@
  * Executar com: bun run db:seed
  */
 import { PrismaClient } from "@prisma/client";
-import { createHash } from "crypto";
+import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
 
-function hashSenha(senha: string): string {
-  return createHash("sha256").update(senha + "_food_delivery_salt").digest("hex");
+async function hashSenha(senha: string): Promise<string> {
+  return bcrypt.hash(senha, 10);
 }
 
 async function main() {
@@ -16,6 +16,7 @@ async function main() {
 
   // ─── LIMPEZA ─────────────────────────────────────────────────────────
   console.log("  Limpando dados antigos...");
+  await db.sessao.deleteMany();
   await db.pagamento.deleteMany();
   await db.itemPedido.deleteMany();
   await db.avaliacao.deleteMany();
@@ -38,7 +39,7 @@ async function main() {
       nome: "Admin Sistema",
       email: "admin@fooddelivery.com",
       telefone: "(11) 4000-0000",
-      senhaHash: hashSenha("admin123"),
+      senhaHash: await hashSenha("admin123"),
       tipoUsuario: "ADMIN",
     },
   });
@@ -49,7 +50,7 @@ async function main() {
       nome: "Maria Santos",
       email: "maria@gmail.com",
       telefone: "(11) 98765-4321",
-      senhaHash: hashSenha("cliente123"),
+      senhaHash: await hashSenha("cliente123"),
       avatarUrl: "https://i.pravatar.cc/150?img=47",
       tipoUsuario: "CLIENTE",
     },
@@ -106,7 +107,7 @@ async function main() {
       nome: "João Pereira",
       email: "joao@entregador.com",
       telefone: "(11) 91234-5678",
-      senhaHash: hashSenha("entregador123"),
+      senhaHash: await hashSenha("entregador123"),
       avatarUrl: "https://i.pravatar.cc/150?img=12",
       tipoUsuario: "ENTREGADOR",
     },
@@ -126,7 +127,7 @@ async function main() {
       nome: "Ana Souza",
       email: "ana@entregador.com",
       telefone: "(11) 99876-5432",
-      senhaHash: hashSenha("entregador123"),
+      senhaHash: await hashSenha("entregador123"),
       avatarUrl: "https://i.pravatar.cc/150?img=23",
       tipoUsuario: "ENTREGADOR",
     },
@@ -275,11 +276,28 @@ async function main() {
     },
   ];
 
+  // Cria um usuário dono para cada restaurante (apenas para o Burguer House para simplicidade)
+  const senhaHashRestaurante = await hashSenha("restaurante123");
+  const burguerHouseOwner = await db.usuario.create({
+    data: {
+      nome: "Carlos Burger",
+      email: "burguer@house.com",
+      telefone: "(11) 3030-1001",
+      senhaHash: senhaHashRestaurante,
+      avatarUrl: "https://i.pravatar.cc/150?img=33",
+      tipoUsuario: "RESTAURANTE",
+    },
+  });
+  console.log(`    ✓ Usuário dono: ${burguerHouseOwner.email} (senha: restaurante123)`);
+
   for (const r of restaurantesData) {
     const { produtos, ...restauranteData } = r;
+    // Apenas Burguer House tem dono vinculado (para teste de login)
+    const usuarioId = r.nome === "Burguer House" ? burguerHouseOwner.id : null;
     const restaurante = await db.restaurante.create({
       data: {
         ...restauranteData,
+        usuarioId,
         produtos: {
           create: produtos,
         },
@@ -385,9 +403,10 @@ async function main() {
   }
 
   console.log("\n✅ Seed concluído com sucesso!");
-  console.log(`   Admin:    admin@fooddelivery.com / admin123`);
-  console.log(`   Cliente:  maria@gmail.com / cliente123`);
-  console.log(`   Entregador: joao@entregador.com / entregador123`);
+  console.log(`   Admin:       admin@fooddelivery.com / admin123`);
+  console.log(`   Cliente:     maria@gmail.com / cliente123`);
+  console.log(`   Entregador:  joao@entregador.com / entregador123`);
+  console.log(`   Restaurante: burguer@house.com / restaurante123`);
 }
 
 main()

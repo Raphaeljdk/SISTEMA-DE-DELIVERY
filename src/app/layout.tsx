@@ -3,6 +3,7 @@ import { Inter, Playfair_Display, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/hooks/use-auth";
 
 const interSans = Inter({
   variable: "--font-inter",
@@ -47,9 +48,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${interSans.variable} ${playfairSerif.variable} ${geistMono.variable} font-sans antialiased`}>
-        {children}
-        <Toaster />
-        <SonnerToaster richColors position="top-right" />
+        <AuthProvider>
+          {children}
+          <Toaster />
+          <SonnerToaster richColors position="top-right" />
+        </AuthProvider>
       </body>
     </html>
   );

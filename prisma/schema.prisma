@@ -31,6 +31,7 @@ model Usuario {
   senhaHash     String
   avatarUrl     String?
   tipoUsuario   String   @default("CLIENTE") // CLIENTE | ENTREGADOR | RESTAURANTE | ADMIN
+  ativo         Boolean  @default(true)
   dataCadastro  DateTime @default(now())
   atualizadoEm  DateTime @updatedAt
 
@@ -38,8 +39,26 @@ model Usuario {
   cliente       Cliente?
   entregador    Entregador?
   restaurante   Restaurante?
+  sessoes       Sessao[]
 
   @@map("usuarios")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// SESSAO — tokens de autenticação (substitui NextAuth para simplificar)
+// ───────────────────────────────────────────────────────────────────────────
+model Sessao {
+  id            String   @id @default(cuid())
+  usuarioId     String
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  token         String   @unique
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  ip            String?
+  userAgent     String?
+
+  @@index([usuarioId])
+  @@map("sessoes")
 }
 
 // ───────────────────────────────────────────────────────────────────────────

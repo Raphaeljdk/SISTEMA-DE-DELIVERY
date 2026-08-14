@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StarRating } from "@/components/star-rating";
+import { GerenciarCardapio } from "@/components/gerenciar-cardapio";
 import { toast } from "sonner";
 import {
   formatCurrency,
@@ -398,56 +399,7 @@ export function RestaurantePainel({ dados }: RestaurantePainelProps) {
           </TabsContent>
 
           <TabsContent value="cardapio" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between font-serif text-lg">
-                  <span>Produtos do cardápio</span>
-                  <Button size="sm" asChild>
-                    <Link href={`/restaurantes/${restaurante.id}`}>
-                      Ver página pública
-                    </Link>
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-                  {produtos.map((p) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center gap-3 rounded-lg border border-border/60 p-3"
-                    >
-                      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-muted">
-                        {p.imagemUrl && (
-                          <Image
-                            src={p.imagemUrl}
-                            alt={p.nome}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate font-medium text-sm">{p.nome}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {p.categoria} · {formatCurrency(p.preco)}
-                        </p>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={
-                          p.disponivel
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }
-                      >
-                        {p.disponivel ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <GerenciarCardapio restauranteId={restaurante.id} />
           </TabsContent>
         </Tabs>
       </section>
